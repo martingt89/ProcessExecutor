@@ -1,5 +1,5 @@
-src/safestream.o: src/safestream.cpp src/safestream.h \
- /usr/include/c++/4.6/string \
+src/safeoutputstream.lo: src/safeoutputstream.cpp src/safeoutputstream.h \
+ src/safestream.h /usr/include/c++/4.6/string \
  /usr/include/c++/4.6/x86_64-linux-gnu/./bits/c++config.h \
  /usr/include/c++/4.6/x86_64-linux-gnu/./bits/os_defines.h \
  /usr/include/features.h /usr/include/x86_64-linux-gnu/bits/predefs.h \
@@ -102,22 +102,9 @@ src/safestream.o: src/safestream.cpp src/safestream.h \
  /usr/include/c++/4.6/bits/unique_ptr.h \
  /usr/include/c++/4.6/bits/shared_ptr.h \
  /usr/include/c++/4.6/bits/shared_ptr_base.h /usr/include/c++/4.6/list \
- /usr/include/c++/4.6/bits/stl_list.h /usr/include/c++/4.6/bits/list.tcc \
- /usr/include/c++/4.6/iostream /usr/include/c++/4.6/ostream \
- /usr/include/c++/4.6/ios /usr/include/c++/4.6/bits/ios_base.h \
- /usr/include/c++/4.6/bits/locale_classes.h \
- /usr/include/c++/4.6/bits/locale_classes.tcc \
- /usr/include/c++/4.6/streambuf /usr/include/c++/4.6/bits/streambuf.tcc \
- /usr/include/c++/4.6/bits/basic_ios.h \
- /usr/include/c++/4.6/bits/locale_facets.h /usr/include/c++/4.6/cwctype \
- /usr/include/wctype.h \
- /usr/include/c++/4.6/x86_64-linux-gnu/./bits/ctype_base.h \
- /usr/include/c++/4.6/bits/streambuf_iterator.h \
- /usr/include/c++/4.6/x86_64-linux-gnu/./bits/ctype_inline.h \
- /usr/include/c++/4.6/bits/locale_facets.tcc \
- /usr/include/c++/4.6/bits/basic_ios.tcc \
- /usr/include/c++/4.6/bits/ostream.tcc /usr/include/c++/4.6/istream \
- /usr/include/c++/4.6/bits/istream.tcc
+ /usr/include/c++/4.6/bits/stl_list.h /usr/include/c++/4.6/bits/list.tcc
+
+src/safeoutputstream.h:
 
 src/safestream.h:
 
@@ -398,43 +385,3 @@ src/safestream.h:
 /usr/include/c++/4.6/bits/stl_list.h:
 
 /usr/include/c++/4.6/bits/list.tcc:
-
-/usr/include/c++/4.6/iostream:
-
-/usr/include/c++/4.6/ostream:
-
-/usr/include/c++/4.6/ios:
-
-/usr/include/c++/4.6/bits/ios_base.h:
-
-/usr/include/c++/4.6/bits/locale_classes.h:
-
-/usr/include/c++/4.6/bits/locale_classes.tcc:
-
-/usr/include/c++/4.6/streambuf:
-
-/usr/include/c++/4.6/bits/streambuf.tcc:
-
-/usr/include/c++/4.6/bits/basic_ios.h:
-
-/usr/include/c++/4.6/bits/locale_facets.h:
-
-/usr/include/c++/4.6/cwctype:
-
-/usr/include/wctype.h:
-
-/usr/include/c++/4.6/x86_64-linux-gnu/./bits/ctype_base.h:
-
-/usr/include/c++/4.6/bits/streambuf_iterator.h:
-
-/usr/include/c++/4.6/x86_64-linux-gnu/./bits/ctype_inline.h:
-
-/usr/include/c++/4.6/bits/locale_facets.tcc:
-
-/usr/include/c++/4.6/bits/basic_ios.tcc:
-
-/usr/include/c++/4.6/bits/ostream.tcc:
-
-/usr/include/c++/4.6/istream:
-
-/usr/include/c++/4.6/bits/istream.tcc:

@@ -1,4 +1,4 @@
-src/safeinputstream.o: src/safeinputstream.cpp src/safeinputstream.h \
+src/safeinputstream.lo: src/safeinputstream.cpp src/safeinputstream.h \
  src/safestream.h /usr/include/c++/4.6/string \
  /usr/include/c++/4.6/x86_64-linux-gnu/./bits/c++config.h \
  /usr/include/c++/4.6/x86_64-linux-gnu/./bits/os_defines.h \

@@ -87,10 +87,7 @@ void Executor::terminateChild(){
 void Executor::writeIn(int fd){
 	std::string input;
 	while (in >> input){
-		size_t writeText = write (fd, input.c_str(), input.size());
-		if(writeText != input.size()){
-			//doplnit
-		}
+		write (fd, input.c_str(), input.size());
 	}
 }
 
@@ -205,11 +202,14 @@ void Executor::run() {
 		std::thread threadOut(&Executor::readOut, this, toOut[0]);
 		std::thread threadErr(&Executor::readErr, this, toErr[0]);
 
+		wait(&childReturnState);
+		in.close();
+		err.close();
+		out.close();
+
 		threadIn.join();
 		threadOut.join();
 		threadErr.join();
-
-		wait(&childReturnState);
 	}
 	m.lock();
 	childPid = -1;
@@ -224,3 +224,4 @@ void Executor::run() {
 
 
 } /* namespace Process */
+
