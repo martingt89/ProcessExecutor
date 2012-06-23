@@ -475,6 +475,7 @@ on martint-T61
 
 config.status:1149: creating Makefile
 config.status:1149: creating config.h
+config.status:1330: config.h is unchanged
 config.status:1378: executing depfiles commands
 config.status:1378: executing libtool commands
 

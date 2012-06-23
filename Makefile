@@ -16,6 +16,7 @@
 
 
 
+
 pkgdatadir = $(datadir)/processexecutor-c--
 pkgincludedir = $(includedir)/processexecutor-c--
 pkglibdir = $(libdir)/processexecutor-c--
@@ -35,10 +36,11 @@ POST_UNINSTALL = :
 build_triplet = x86_64-unknown-linux-gnu
 host_triplet = x86_64-unknown-linux-gnu
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	config.guess config.sub depcomp install-sh ltmain.sh missing
+DIST_COMMON = README $(am__configure_deps) $(library_include_HEADERS) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(srcdir)/config.h.in $(top_srcdir)/configure AUTHORS COPYING \
+	ChangeLog INSTALL NEWS config.guess config.sub depcomp \
+	install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -70,7 +72,8 @@ am__nobase_list = $(am__nobase_strip_setup); \
 am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__installdirs = "$(DESTDIR)$(libdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" \
+	"$(DESTDIR)$(library_includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libprocessexecutor_0_1_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -103,6 +106,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libprocessexecutor_0_1_la_SOURCES)
 DIST_SOURCES = $(libprocessexecutor_0_1_la_SOURCES)
+HEADERS = $(library_include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -237,10 +241,14 @@ top_srcdir = .
 AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 lib_LTLIBRARIES = libprocessexecutor-0.1.la
-AM_CXXFLAGS = -O0 -lpthread -std=c++0x
+AM_CXXFLAGS = -O0 -lpthread -std=c++0x -I$(libdir)
 libprocessexecutor_0_1_la_SOURCES = src/safestream.h src/processexecutor.h src/processexecutor.cpp 	\
 				src/safeinputstream.cpp src/safeoutputstream.h 					\
 				src/safeoutputstream.cpp src/safestream.cpp src/safeinputstream.h
+
+library_includedir = $(includedir)/processexecutor
+library_include_HEADERS = src/processexecutor.h src/safeinputstream.h \
+				src/safeoutputstream.h src/safestream.h
 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -397,6 +405,26 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-library_includeHEADERS: $(library_include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(library_includedir)" || $(MKDIR_P) "$(DESTDIR)$(library_includedir)"
+	@list='$(library_include_HEADERS)'; test -n "$(library_includedir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(library_includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(library_includedir)" || exit $$?; \
+	done
+
+uninstall-library_includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(library_include_HEADERS)'; test -n "$(library_includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	test -n "$$files" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(library_includedir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(library_includedir)" && rm -f $$files
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -599,9 +627,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(LTLIBRARIES) config.h
+all-am: Makefile $(LTLIBRARIES) $(HEADERS) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(library_includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -655,7 +683,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-library_includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -703,7 +731,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am: uninstall-libLTLIBRARIES \
+	uninstall-library_includeHEADERS
 
 .MAKE: all install-am install-strip
 
@@ -717,12 +746,13 @@ uninstall-am: uninstall-libLTLIBRARIES
 	install-data install-data-am install-dvi install-dvi-am \
 	install-exec install-exec-am install-html install-html-am \
 	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-libLTLIBRARIES
+	install-library_includeHEADERS install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-libLTLIBRARIES \
+	uninstall-library_includeHEADERS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
