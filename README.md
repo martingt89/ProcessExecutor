@@ -9,12 +9,11 @@ class SafeStream - threadsafe class
 		- bool operator<<(const std::string& text) nonblock write to buffer
 			return true if buffer is not close
 			
-		- bool operator>>(std::string& text) default block read, unblock thread if write data or close buffer
+		- bool operator>>(std::string& text) block read, unblock thread if write data or close buffer
 			return true if buffer is not close or are data available
-			
-		- void enableNonBlockRead() - if is reading and data not available return empty string - non waiting
 		
-		- disableNonBlockRead() - return to block mode
+		- int operator>>=() non block read
+			return 1 if read ok, -1 if empty buffer, 0 if close stream
 		
 		- bool isOpen() - test if buffer is still open
 		
@@ -36,12 +35,10 @@ class ProcessExecutor
 		SafeOutputStream& getStdIn() - return stream for writing to std in
 		
 		int waitForRunChild(std::string &errorMessage) - block thread until command is execute or if error
-			- return 0 if ok, else 1 and errorMessage is set
+			- return 0 if ok, else 1
 		int waitForEndChild() - block thread until command is not endit or if error
 			- return child return value, or -1 if error
 		void terminateChild() - send sigterm to child process
-
-for disable error messages to stderr, define macro PROCESS_NOWARNING
 
 INSTALL
 =======
