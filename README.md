@@ -28,7 +28,9 @@ class SafeOutputStream - threadsafe class
 class ProcessExecutor
 	- execute command with arguments and create SafeStream for stdin, stdout, stderr
 		SafeInputStream& getStdOut() - return stream for reading from std out
+		
 		SafeInputStream& getStdErr() - return stream for reading from std err
+		
 		SafeOutputStream& getStdIn() - return stream for writing to std in
 		
 		int waitForRunChild(std::string &errorMessage) - block thread until command is execute or if error
@@ -40,7 +42,7 @@ class ProcessExecutor
 INSTALL
 =======
 
-./configure
-make
-sudo make install
-sudo ldconfig
+		./configure
+		make
+		sudo make install
+		sudo ldconfig

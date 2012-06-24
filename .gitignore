@@ -8,6 +8,17 @@ Makefile.in
 .deps
 .libs
 
+#compile
+
+Makefile
+config.h
+config.log
+config.status
+libtool
+src/.dirstamp
+stamp-h1
+
+
 # http://www.gnu.org/software/autoconf
 
 /autom4te.cache
