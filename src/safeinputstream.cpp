@@ -13,7 +13,7 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
 #include "safeinputstream.h"
@@ -33,10 +33,7 @@ bool SafeInputStream::isOpen(){
 bool SafeInputStream::operator>>(std::string &text){
 	return stream >> text;
 }
-void SafeInputStream::enableNonBlockMode(){
-	stream.enableNonBlockRead();
-}
-void SafeInputStream::disableNonBlockMode(){
-	stream.disableNonBlockRead();
+int SafeInputStream::operator>>=(std::string &text){
+	return stream >>= text;
 }
 } /* namespace Process */

@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
 ** Author: Martin Geier
-** safestream.cpp is part of ProcessExecutor.
+** safestream.h is part of ProcessExecutor.
 **
 ** ProcessExecutor is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
 #ifndef SAFESTREAM_H_
@@ -32,16 +32,14 @@ public:
 	virtual ~SafeStream();
 	bool operator<<(const std::string& text);
 	bool operator>>(std::string& text);
+	int operator>>=(std::string& text);
 	bool isOpen();
 	void close();
-	void enableNonBlockRead();
-	void disableNonBlockRead();
 private:
 	bool open;
 	std::mutex mutex;
 	std::condition_variable cond;
 	std::list<std::string> buffer;
-	bool blockRead;
 };
 
 } /* namespace Process */

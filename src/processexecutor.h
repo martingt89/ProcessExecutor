@@ -13,7 +13,7 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
 #ifndef PROCESSEXECUTOR_H_
@@ -36,16 +36,20 @@ public:
 	SafeInputStream& getStdOut();
 	SafeInputStream& getStdErr();
 	SafeOutputStream& getStdIn();
-	int waitForRunChild(std::string &errorMessage);
+	SafeInputStream& getLog();
+	int waitForRunChild();
 	int waitForEndChild();
 	void terminateChild();
 private:
 	SafeStream out;
 	SafeStream err;
 	SafeStream in;
+	SafeStream log;
 	SafeInputStream errStream;
 	SafeInputStream outStream;
+	SafeInputStream logStream;
 	SafeOutputStream inStream;
+
 	void run();
 	void writeIn(int fd);
 	void readOut(int fd);
@@ -59,7 +63,6 @@ private:
 
 	int childPid;
 	int childReturnState;
-	std::string errorMessage;
 	int errorState;
 	bool rerunParent;
 	bool endChild;

@@ -13,7 +13,7 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
 #include "processexecutor.h"
@@ -41,6 +41,7 @@ std::string getErrorMessage(const std::string& text){
 Executor::Executor(const std::string& path, const std::list<std::string>& args):
 		errStream(err),
 		outStream(out),
+		logStream(log),
 		inStream(in){
 	errorState = PROCESS_OK;
 	childReturnState = -1;
@@ -69,13 +70,16 @@ SafeInputStream& Executor::getStdErr(){
 SafeOutputStream& Executor::getStdIn(){
 	return inStream;
 }
-int Executor::waitForRunChild(std::string &errorMessage){
+SafeInputStream& Executor::getLog(){
+	return logStream;
+}
+
+int Executor::waitForRunChild(){
 	std::unique_lock<std::mutex> m(mutex);
 	while(!rerunParent){
 		cond.wait(m);
 	}
 	if(errorState != PROCESS_OK){
-		errorMessage = this->errorMessage;
 		return 1;
 	}
 	return 0;
@@ -92,16 +96,14 @@ void Executor::terminateChild(){
 	if(childPid > 0){
 		kill(childPid, SIGTERM);
 	}else{
-		//Child process is not running
+		//todo Child process is not running
 	}
 }
 void Executor::writeIn(int fd){
 	std::string input;
 	while (in >> input){
 		if(write (fd, input.c_str(), input.size()) != (ssize_t)input.size()){
-#ifndef PROCESS_NOWARNING
-			printf("Critical error: Cannot write full message to fd");
-#endif
+			log << std::string("write cannot write all message: ") + input;
 		}
 	}
 }
@@ -134,17 +136,17 @@ void Executor::run() {
 	int toErr[2];
 	if (pipe(toInt) != 0) {
 		errorState = PROCESS_PIPEERR;
-		errorMessage = getErrorMessage("Cannot create pipe: ");
+		log << getErrorMessage("Cannot create pipe: ");
 		return;
 	}
 	if (pipe(toOut) != 0) {
 		errorState = PROCESS_PIPEERR;
-		errorMessage = getErrorMessage("Cannot create pipe: ");
+		log << getErrorMessage("Cannot create pipe: ");
 		return;
 	}
 	if (pipe(toErr) != 0) {
 		errorState = PROCESS_PIPEERR;
-		errorMessage = getErrorMessage("Cannot create pipe: ");
+		log << getErrorMessage("Cannot create pipe: ");
 		return;
 	}
 
@@ -163,7 +165,7 @@ void Executor::run() {
 	int pid = vfork();
 	if (pid == -1) {
 		errorState = PROCESS_VFORKERR;
-		errorMessage = getErrorMessage("Cannot run vfork: ");
+		log << getErrorMessage("Cannot run vfork: ");
 		return;
 	}
 
@@ -171,7 +173,7 @@ void Executor::run() {
 		close(0);
 		if(dup(toInt[0]) != 0){
 			errorState = PROCESS_DUP0ERR;
-			errorMessage = getErrorMessage("Dup 0 error: ");
+			log << getErrorMessage("Dup 0 error: ");
 			_exit(1);
 		}
 		close(toInt[1]);
@@ -179,7 +181,7 @@ void Executor::run() {
 		close(1);
 		if(dup(toOut[1]) != 1){
 			errorState = PROCESS_DUP1ERR;
-			errorMessage = getErrorMessage("Dup 1 error: ");
+			log << getErrorMessage("Dup 1 error: ");
 			_exit(1);
 		}
 		close(toOut[0]);
@@ -187,7 +189,7 @@ void Executor::run() {
 		close(2);
 		if(dup(toErr[1]) != 2){
 			errorState = PROCESS_DUP2ERR;
-			errorMessage = getErrorMessage("Dup 2 error: ");
+			log << getErrorMessage("Dup 2 error: ");
 			_exit(1);
 		}
 		close(toErr[0]);
@@ -195,7 +197,7 @@ void Executor::run() {
 		execvp(command.c_str(), comm);
 		{
 			errorState = PROCESS_EXECVPERR;
-			errorMessage = getErrorMessage("execvp error: ");
+			log << getErrorMessage("execvp error: ");
 			vforkErr = 1;
 		}
 		_exit(1);
@@ -217,14 +219,13 @@ void Executor::run() {
 		std::thread threadOut(&Executor::readOut, this, toOut[0]);
 		std::thread threadErr(&Executor::readErr, this, toErr[0]);
 
-		wait(&childReturnState);
+		threadOut.join();
+		threadErr.join();
 		in.close();
 		err.close();
 		out.close();
-
 		threadIn.join();
-		threadOut.join();
-		threadErr.join();
+		wait(&childReturnState);
 	}
 	m.lock();
 	childPid = -1;
@@ -235,8 +236,8 @@ void Executor::run() {
 	in.close();
 	err.close();
 	out.close();
+	log.close();
 }
 
 
 } /* namespace Process */
-

@@ -13,7 +13,7 @@
 ** GNU General Public License for more details.
 **
 ** You should have received a copy of the GNU General Public License
-** along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
 #include "safestream.h"
@@ -22,20 +22,10 @@ namespace Process {
 
 SafeStream::SafeStream() {
 	open = true;
-	blockRead = true;
 }
 
 SafeStream::~SafeStream() {
-	// TODO Auto-generated destructor stub
-}
-void SafeStream::enableNonBlockRead(){
-	std::unique_lock<std::mutex> m(mutex);
-	blockRead = false;
-	cond.notify_all();
-}
-void SafeStream::disableNonBlockRead(){
-	std::unique_lock<std::mutex> m(mutex);
-	blockRead = true;
+	open = false;
 }
 bool SafeStream::operator<<(const std::string& text){
 	std::unique_lock<std::mutex> m(mutex);
@@ -45,9 +35,21 @@ bool SafeStream::operator<<(const std::string& text){
 	}
 	return open;
 }
+int SafeStream::operator>>=(std::string& text){
+	std::unique_lock<std::mutex> m(mutex);
+	if(!buffer.empty()){
+		text = buffer.front();
+		buffer.pop_front();
+		return 1;
+	}
+	if(open){
+		return -1;		//nothing read
+	}
+	return 0;			//buffer is close
+}
 bool SafeStream::operator>>(std::string& text){
 	std::unique_lock<std::mutex> m(mutex);
-	while(blockRead && open && buffer.empty()){
+	while(open && buffer.empty()){
 		cond.wait(m);
 	}
 	if(!buffer.empty()){
