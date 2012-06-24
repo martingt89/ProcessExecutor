@@ -5,15 +5,19 @@ Library for running external programs
 
 class SafeStream - threadsafe class
 	- buffer to copy data over threads
-		- operator<< nonblock write to buffer
+		- bool operator<<(const std::string& text) nonblock write to buffer
 			return true if buffer is not close
 			
-		- operator>> default block read, unblock thread if write data or close buffer
+		- bool operator>>(std::string& text) default block read, unblock thread if write data or close buffer
 			return true if buffer is not close or are data available
 			
-		- enableNonBlockRead - if is reading and data not available return empty string - non waiting
+		- void enableNonBlockRead() - if is reading and data not available return empty string - non waiting
 		
-		- disableNonBlockRead - return to block mode
+		- disableNonBlockRead() - return to block mode
+		
+		- bool isOpen() - test if buffer is still open
+		
+		- void close() - finally close buffer
 	
 class SafeInputStream - threadsafe class
 	- ecapsulate SafeStream and enable only read
@@ -32,3 +36,11 @@ class ProcessExecutor
 		int waitForEndChild() - block thread until command is not endit or if error
 			- return child return value, or -1 if error
 		void terminateChild() - send sigterm to child process
+		
+INSTALL
+=======
+
+./configure
+make
+sudo make install
+sudo ldconfig
