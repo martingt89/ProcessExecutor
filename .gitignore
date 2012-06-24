@@ -3,6 +3,10 @@
 Makefile.in
 *.lo
 *.o
+*.la
+
+.deps
+.libs
 
 # http://www.gnu.org/software/autoconf
 
