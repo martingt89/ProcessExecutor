@@ -87,7 +87,11 @@ void Executor::terminateChild(){
 void Executor::writeIn(int fd){
 	std::string input;
 	while (in >> input){
-		write (fd, input.c_str(), input.size());
+		if(write (fd, input.c_str(), input.size()) != (ssize_t)input.size()){
+#ifndef PROCESS_NOWARNING
+			printf("Critical error: Cannot write full message to fd");
+#endif
+		}
 	}
 }
 

@@ -5,6 +5,7 @@ Library for running external programs
 
 class SafeStream - threadsafe class
 	- buffer to copy data over threads
+		
 		- bool operator<<(const std::string& text) nonblock write to buffer
 			return true if buffer is not close
 			
@@ -27,6 +28,7 @@ class SafeOutputStream - threadsafe class
 	
 class ProcessExecutor
 	- execute command with arguments and create SafeStream for stdin, stdout, stderr
+		
 		SafeInputStream& getStdOut() - return stream for reading from std out
 		
 		SafeInputStream& getStdErr() - return stream for reading from std err
@@ -38,7 +40,9 @@ class ProcessExecutor
 		int waitForEndChild() - block thread until command is not endit or if error
 			- return child return value, or -1 if error
 		void terminateChild() - send sigterm to child process
-		
+
+for disable error messages to stderr, define macro PROCESS_NOWARNING
+
 INSTALL
 =======
 
