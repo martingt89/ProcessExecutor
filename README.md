@@ -3,6 +3,8 @@ ProcessExecutor
 
 Library for running external programs
 
+ONLY FOR LINUX
+
 class SafeStream - threadsafe class
 	- buffer to copy data over threads
 		
@@ -47,3 +49,7 @@ INSTALL
 		make
 		sudo make install
 		sudo ldconfig
+
+COMPILE YOUR PROJECT
+====================
+		-lpthread -lprocessexecutor-0.1 -std=c++0x
