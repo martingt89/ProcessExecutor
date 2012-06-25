@@ -5,6 +5,14 @@ Library for running external programs
 
 ONLY FOR LINUX
 
+Namespace
+=========
+
+Process
+
+Using
+=====
+
 class SafeStream - threadsafe class
 	- buffer to copy data over threads
 		
@@ -42,7 +50,7 @@ class ProcessExecutor
 			- return child return value, or -1 if error
 		void terminateChild() - send sigterm to child process
 
-INSTALL
+Install
 =======
 
 		./configure
@@ -50,6 +58,6 @@ INSTALL
 		sudo make install
 		sudo ldconfig
 
-COMPILE YOUR PROJECT
-====================
+Compile with your project
+=========================
 		-lpthread -lprocessexecutor-0.1 -std=c++0x
