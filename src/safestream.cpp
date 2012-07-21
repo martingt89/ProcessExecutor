@@ -18,7 +18,7 @@
 
 #include "safestream.h"
 #include <iostream>
-namespace Process {
+namespace ProcessExecutor {
 
 SafeStream::SafeStream() {
 	open = true;
@@ -68,4 +68,4 @@ void SafeStream::close(){
 	open = false;
 	cond.notify_all();
 }
-} /* namespace Process */
+} /* namespace ProcessExecutor */

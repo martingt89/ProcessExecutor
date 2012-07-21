@@ -24,7 +24,7 @@
 #include <condition_variable>
 #include <thread>
 #include <list>
-namespace Process {
+namespace ProcessExecutor {
 
 class SafeStream{
 public:
@@ -42,5 +42,5 @@ private:
 	std::list<std::string> buffer;
 };
 
-} /* namespace Process */
+} /* namespace ProcessExecutor */
 #endif /* SAFESTREAM_H_ */

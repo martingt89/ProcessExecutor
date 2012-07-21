@@ -1,13 +1,11 @@
-//compile g++ simple.cpp -lpthread -lprocessexecutor-0.1 -std=c++0x -o simple
+//compile g++ simple.cpp -lpthread -lprocessexecutor -std=c++0x -o simple
 
 #include <iostream>
-#include <processexecutor/processexecutor.h>
-
-
+#include <processexecutor/process.h>
 
 int main(){
 
-Process::Executor process("uname");
+ProcessExecutor::Process process("uname");
 
 std::string output;
 

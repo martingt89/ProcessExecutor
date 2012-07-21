@@ -5,10 +5,15 @@ Library for running external programs
 
 ONLY FOR LINUX
 
+VERSION
+=======
+
+0.2
+
 Namespace
 =========
 
-Process
+ProcessExecutor
 
 Using
 =====
@@ -35,7 +40,7 @@ class SafeInputStream - threadsafe class
 class SafeOutputStream - threadsafe class
 	- ecapsulate SafeStream and enable only write
 	
-class ProcessExecutor
+class Process
 	- execute command with arguments and create SafeStream for stdin, stdout, stderr
 		
 		SafeInputStream& getStdOut() - return stream for reading from std out
@@ -44,9 +49,9 @@ class ProcessExecutor
 		
 		SafeOutputStream& getStdIn() - return stream for writing to std in
 		
-		int waitForRunChild(std::string &errorMessage) - block thread until command is execute or if error
+		int waitForChildProcessBegin(std::string &errorMessage) - block thread until command is executed or if error
 			- return 0 if ok, else 1
-		int waitForEndChild() - block thread until command is not endit or if error
+		int waitForChildProcessEnd() - block thread until command is not ended or if error
 			- return child return value, or -1 if error
 		void terminateChild() - send sigterm to child process
 
@@ -58,6 +63,6 @@ Install
 		sudo make install
 		sudo ldconfig
 
-Compile with your project
-=========================
-		-lpthread -lprocessexecutor-0.1 -std=c++0x
+Compile your project with
+==========================
+		-lpthread -lprocessexecutor -std=c++0x

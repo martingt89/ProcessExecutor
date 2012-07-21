@@ -1,17 +1,17 @@
-//compile g++ arguments.cpp -lpthread -lprocessexecutor-0.1 -std=c++0x -o arguments
+//compile g++ arguments.cpp -lpthread -lprocessexecutor -std=c++0x -o arguments
 
 #include <iostream>
-#include <processexecutor/processexecutor.h>
-
-
+#include <processexecutor/process.h>
 
 int main(){
+
+std::cout<<"Running: "<<"ls -l -a"<<std::endl<<std::endl;
 
 std::list<std::string> args;
 args.push_back("-l");
 args.push_back("-a");
 
-Process::Executor process("ls", args);
+ProcessExecutor::Process process("ls", args);
 
 std::string output;
 

@@ -1,4 +1,4 @@
-AC_INIT([ProcessExecutor C++], [0.1], [martingt89@gmail.com])
+AC_INIT([ProcessExecutor C++], [0.2], [martingt89@gmail.com])
 AC_PREREQ([2.59])
 AM_INIT_AUTOMAKE([1.10 -Wall no-define])
 LT_INIT

@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
 ** Author: Martin Geier
-** processexecutor.h is part of ProcessExecutor.
+** process.h is part of ProcessExecutor.
 **
 ** ProcessExecutor is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -16,8 +16,8 @@
 ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
-#ifndef PROCESSEXECUTOR_H_
-#define PROCESSEXECUTOR_H_
+#ifndef PROCESS_H_
+#define PROCESS_H_
 
 #include <iostream>
 #include <sstream>
@@ -27,19 +27,29 @@
 #include <thread>
 #include <list>
 
-namespace Process {
+namespace ProcessExecutor {
 
-class Executor {
+class Process {
 public:
-	Executor(const std::string& path, const std::list<std::string>& args = std::list<std::string>());
-	virtual ~Executor();
+	enum ProcessState{
+		PROCESS_STATE_OK,
+		PROCESS_STATE_PIPEERR,
+		PROCESS_STATE_VFORKERR,
+		PROCESS_STATE_DUP0ERR,
+		PROCESS_STATE_DUP1ERR,
+		PROCESS_STATE_DUP2ERR,
+		PROCESS_STATE_EXECVPERR
+	};
+public:
+	Process(const std::string& path, const std::list<std::string>& args = std::list<std::string>());
+	virtual ~Process();
 	SafeInputStream& getStdOut();
 	SafeInputStream& getStdErr();
 	SafeOutputStream& getStdIn();
 	SafeInputStream& getLog();
-	int waitForRunChild();
-	int waitForEndChild();
-	void terminateChild();
+	int waitForChildProcessBegin();
+	int waitForChildProcessEnd();
+	void terminateChildProcess();
 private:
 	SafeStream out;
 	SafeStream err;
@@ -63,10 +73,10 @@ private:
 
 	int childPid;
 	int childReturnState;
-	int errorState;
+	ProcessState processState;
 	bool rerunParent;
 	bool endChild;
 };
 
-} /* namespace Process */
-#endif /* PROCESSEXECUTOR_H_ */
+} /* namespace ProcessExecutor */
+#endif /* PROCESS_H_ */

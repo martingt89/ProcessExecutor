@@ -21,7 +21,7 @@
 
 #include "safestream.h"
 
-namespace Process {
+namespace ProcessExecutor {
 
 class SafeInputStream {
 public:
@@ -38,5 +38,5 @@ private:
 	SafeStream &stream;
 };
 
-} /* namespace Process */
+} /* namespace ProcessExecutor */
 #endif /* SAFEINPUTSTREAM_H_ */

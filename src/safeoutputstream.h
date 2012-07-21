@@ -21,7 +21,7 @@
 
 #include "safestream.h"
 
-namespace Process {
+namespace ProcessExecutor {
 
 class SafeOutputStream {
 public:
@@ -36,5 +36,5 @@ private:
 	void operator=(const SafeOutputStream &stream);
 };
 
-} /* namespace Process */
+} /* namespace ProcessExecutor */
 #endif /* SAFEOUTPUTSTREAM_H_ */

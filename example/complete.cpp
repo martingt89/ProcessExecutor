@@ -1,22 +1,22 @@
-//compile g++ complete.cpp -lpthread -lprocessexecutor-0.1 -std=c++0x -o complete
+//compile g++ complete.cpp -lpthread -lprocessexecutor -std=c++0x -o complete
 
 #include <iostream>
-#include <processexecutor/processexecutor.h>
+#include <processexecutor/process.h>
 
 
 void run(std::string command, std::list<std::string> arg){
 
 	std::string sa;
 
-	Process::Executor p(command, arg);
-	if(p.waitForRunChild()){			//if error
+	ProcessExecutor::Process p(command, arg);
+	if(p.waitForChildProcessBegin()){			//if error
 		p.getLog() >>= sa;
 		std::cout<<"Log: "<<sa<<std::endl;
 		return;
 	}
 
-	Process::SafeInputStream& siso = p.getStdOut();
-	Process::SafeInputStream& sise = p.getStdErr();
+	ProcessExecutor::SafeInputStream& siso = p.getStdOut();
+	ProcessExecutor::SafeInputStream& sise = p.getStdErr();
 
 	sa = "";
 
@@ -24,7 +24,7 @@ void run(std::string command, std::list<std::string> arg){
 		std::cout<<sa<<std::endl;
 	}
 
-	std::cout<<"Return: "<<p.waitForEndChild()<<std::endl;
+	std::cout<<"Return: "<<p.waitForChildProcessEnd()<<std::endl;
 
 }
 
@@ -33,11 +33,11 @@ int main(int argc, char *argv[]){
 	std::list<std::string> arg;
 	arg.push_back("-a");
 	
-	std::cout<<"====== running 'ls -a' ======="<<std::endl;
+	std::cout<<"====== Running 'ls -a' ======="<<std::endl;
 
 	run("ls", arg);	//all ok
 	
-	std::cout<<"====== running 'lsa -a' ======="<<std::endl;
+	std::cout<<std::endl<<"====== Running 'lsa -a' ======="<<std::endl;
 	
 	run("lsa", arg); //program lsa doesn't exist
 

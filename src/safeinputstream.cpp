@@ -18,7 +18,7 @@
 
 #include "safeinputstream.h"
 
-namespace Process {
+namespace ProcessExecutor {
 
 SafeInputStream::SafeInputStream(SafeStream &stream): stream(stream) {
 }
@@ -36,4 +36,4 @@ bool SafeInputStream::operator>>(std::string &text){
 int SafeInputStream::operator>>=(std::string &text){
 	return stream >>= text;
 }
-} /* namespace Process */
+} /* namespace ProcessExecutor */

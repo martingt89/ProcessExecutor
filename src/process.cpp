@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
 ** Author: Martin Geier
-** processexecutor.cpp is part of ProcessExecutor.
+** process.cpp is part of ProcessExecutor.
 **
 ** ProcessExecutor is free software: you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -16,136 +16,126 @@
 ** along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ** -------------------------------------------------------------------------*/
 
-#include "processexecutor.h"
+#include "process.h"
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
 
-
-#define PROCESS_OK			0
-#define PROCESS_PIPEERR		1
-#define PROCESS_VFORKERR	2
-#define PROCESS_DUP0ERR		3
-#define PROCESS_DUP1ERR		4
-#define PROCESS_DUP2ERR		5
-#define PROCESS_EXECVPERR	6
-
-namespace Process {
+namespace ProcessExecutor {
 
 std::string getErrorMessage(const std::string& text){
 	return text + strerror(errno);
 }
 
-Executor::Executor(const std::string& path, const std::list<std::string>& args):
+Process::Process(const std::string& path, const std::list<std::string>& args):
 		errStream(err),
 		outStream(out),
 		logStream(log),
-		inStream(in){
-	errorState = PROCESS_OK;
+		inStream(in),
+		args(args){
+	processState = PROCESS_STATE_OK;
 	childReturnState = -1;
 	childPid = -1;
 	rerunParent = false;
 	endChild = false;
 
 	command = path;
-	std::list<std::string>::const_iterator it;
-	for(it = args.begin(); it != args.end(); it++){
-		this->args.push_back(*it);
-	}
-	thread = new std::thread(&Executor::run, this);
+	thread = new std::thread(&Process::run, this);
 }
 
-Executor::~Executor() {
+Process::~Process() {
 	thread->join();
 	delete thread;
 }
-SafeInputStream& Executor::getStdOut(){
+SafeInputStream& Process::getStdOut(){
 	return outStream;
 }
-SafeInputStream& Executor::getStdErr(){
+SafeInputStream& Process::getStdErr(){
 	return errStream;
 }
-SafeOutputStream& Executor::getStdIn(){
+SafeOutputStream& Process::getStdIn(){
 	return inStream;
 }
-SafeInputStream& Executor::getLog(){
+SafeInputStream& Process::getLog(){
 	return logStream;
 }
 
-int Executor::waitForRunChild(){
+int Process::waitForChildProcessBegin(){
 	std::unique_lock<std::mutex> m(mutex);
 	while(!rerunParent){
 		cond.wait(m);
 	}
-	if(errorState != PROCESS_OK){
+	if(processState != PROCESS_STATE_OK){
 		return 1;
 	}
 	return 0;
 }
-int Executor::waitForEndChild(){
+int Process::waitForChildProcessEnd(){
 	std::unique_lock<std::mutex> m(mutex);
 	while(!rerunParent || !endChild){
 		cond.wait(m);
 	}
 	return childReturnState;
 }
-void Executor::terminateChild(){
+void Process::terminateChildProcess(){
 	std::unique_lock<std::mutex> m(mutex);
 	if(childPid > 0){
 		kill(childPid, SIGTERM);
 	}else{
-		//todo Child process is not running
+		//Child process is not running
 	}
 }
-void Executor::writeIn(int fd){
+void Process::writeIn(int fd){
 	std::string input;
 	while (in >> input){
-		if(write (fd, input.c_str(), input.size()) != (ssize_t)input.size()){
-			log << std::string("write cannot write all message: ") + input;
+		ssize_t numberOfWritedChars = write (fd, input.c_str(), input.size());
+		if(numberOfWritedChars != (ssize_t)input.size()){
+			log << std::string("Error: write cannot send a command: ") + input;
 		}
 	}
 }
 
-void Executor::readFdWriteToStream(int fd, SafeStream &stream) {
-	char buf;
-	std::stringstream ss;
-	while (read(fd, &buf, 1)) {
-		if (buf != '\n') {
-			ss << buf;
+void Process::readFdWriteToStream(int fd, SafeStream &stream) {
+	char charBuffer;
+	std::stringstream lineBuffer;
+	while (read(fd, &charBuffer, 1) || lineBuffer.str().size() > 0) {
+		if (charBuffer != '\n') {
+			lineBuffer << charBuffer;
 		} else {
-			stream << ss.str();
-			ss.str("");
+			stream << lineBuffer.str();
+			lineBuffer.str("");
 		}
+		charBuffer = '\n';	//if not read new char, end line
 	}
-	if (ss.str().size() > 0)
-		stream << ss.str();
+//	if (ss.str().size() > 0)
+//		stream << ss.str();
 }
-void Executor::readOut(int fd){
+void Process::readOut(int fd){
 	readFdWriteToStream(fd, out);
 }
-void Executor::readErr(int fd) {
+void Process::readErr(int fd) {
 	readFdWriteToStream(fd, err);
 }
 
 /*Fork process, start program with command and args*/
-void Executor::run() {
+void Process::run() {
 	int toInt[2];
 	int toOut[2];
 	int toErr[2];
 	if (pipe(toInt) != 0) {
-		errorState = PROCESS_PIPEERR;
+		processState = PROCESS_STATE_PIPEERR;
 		log << getErrorMessage("Cannot create pipe: ");
 		return;
 	}
 	if (pipe(toOut) != 0) {
-		errorState = PROCESS_PIPEERR;
+		processState = PROCESS_STATE_PIPEERR;
 		log << getErrorMessage("Cannot create pipe: ");
 		return;
 	}
 	if (pipe(toErr) != 0) {
-		errorState = PROCESS_PIPEERR;
+		processState = PROCESS_STATE_PIPEERR;
 		log << getErrorMessage("Cannot create pipe: ");
 		return;
 	}
@@ -164,7 +154,7 @@ void Executor::run() {
 
 	int pid = vfork();
 	if (pid == -1) {
-		errorState = PROCESS_VFORKERR;
+		processState = PROCESS_STATE_VFORKERR;
 		log << getErrorMessage("Cannot run vfork: ");
 		return;
 	}
@@ -172,7 +162,7 @@ void Executor::run() {
 	if(pid == 0){	//child
 		close(0);
 		if(dup(toInt[0]) != 0){
-			errorState = PROCESS_DUP0ERR;
+			processState = PROCESS_STATE_DUP0ERR;
 			log << getErrorMessage("Dup 0 error: ");
 			_exit(1);
 		}
@@ -180,7 +170,7 @@ void Executor::run() {
 
 		close(1);
 		if(dup(toOut[1]) != 1){
-			errorState = PROCESS_DUP1ERR;
+			processState = PROCESS_STATE_DUP1ERR;
 			log << getErrorMessage("Dup 1 error: ");
 			_exit(1);
 		}
@@ -188,7 +178,7 @@ void Executor::run() {
 
 		close(2);
 		if(dup(toErr[1]) != 2){
-			errorState = PROCESS_DUP2ERR;
+			processState = PROCESS_STATE_DUP2ERR;
 			log << getErrorMessage("Dup 2 error: ");
 			_exit(1);
 		}
@@ -196,7 +186,7 @@ void Executor::run() {
 
 		execvp(command.c_str(), comm);
 		{
-			errorState = PROCESS_EXECVPERR;
+			processState = PROCESS_STATE_EXECVPERR;
 			log << getErrorMessage("execvp error: ");
 			vforkErr = 1;
 		}
@@ -215,9 +205,9 @@ void Executor::run() {
 	m.unlock();
 
 	if(vforkErr == 0){	//command is running
-		std::thread threadIn(&Executor::writeIn, this, toInt[1]);
-		std::thread threadOut(&Executor::readOut, this, toOut[0]);
-		std::thread threadErr(&Executor::readErr, this, toErr[0]);
+		std::thread threadIn(&Process::writeIn, this, toInt[1]);
+		std::thread threadOut(&Process::readOut, this, toOut[0]);
+		std::thread threadErr(&Process::readErr, this, toErr[0]);
 
 		threadOut.join();
 		threadErr.join();
@@ -240,4 +230,4 @@ void Executor::run() {
 }
 
 
-} /* namespace Process */
+} /* namespace ProcessExecutor */
