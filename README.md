@@ -1,7 +1,7 @@
 ProcessExecutor
 ===============
 
-Library for running external programs
+Library for executing external programs
 
 ONLY FOR LINUX
 

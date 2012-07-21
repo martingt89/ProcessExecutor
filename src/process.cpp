@@ -109,8 +109,6 @@ void Process::readFdWriteToStream(int fd, SafeStream &stream) {
 		}
 		charBuffer = '\n';	//if not read new char, end line
 	}
-//	if (ss.str().size() > 0)
-//		stream << ss.str();
 }
 void Process::readOut(int fd){
 	readFdWriteToStream(fd, out);
