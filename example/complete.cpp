@@ -9,7 +9,7 @@ void run(std::string command, std::list<std::string> arg){
 	std::string sa;
 
 	ProcessExecutor::Process p(command, arg);
-	if(p.waitForChildProcessBegin()){			//if error
+	if(p.waitForProcessBegin()){			//if error
 		p.getLog() >>= sa;
 		std::cout<<"Log: "<<sa<<std::endl;
 		return;
@@ -24,7 +24,7 @@ void run(std::string command, std::list<std::string> arg){
 		std::cout<<sa<<std::endl;
 	}
 
-	std::cout<<"Return: "<<p.waitForChildProcessEnd()<<std::endl;
+	std::cout<<"Return: "<<p.waitForProcessEnd()<<std::endl;
 
 }
 

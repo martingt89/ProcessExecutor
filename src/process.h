@@ -47,9 +47,9 @@ public:
 	SafeInputStream& getStdErr();
 	SafeOutputStream& getStdIn();
 	SafeInputStream& getLog();
-	int waitForChildProcessBegin();
-	int waitForChildProcessEnd();
-	void terminateChildProcess();
+	int waitForProcessBegin();
+	int waitForProcessEnd();
+	void terminateProcess();
 private:
 	SafeStream out;
 	SafeStream err;

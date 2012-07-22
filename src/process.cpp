@@ -62,7 +62,7 @@ SafeInputStream& Process::getLog(){
 	return logStream;
 }
 
-int Process::waitForChildProcessBegin(){
+int Process::waitForProcessBegin(){
 	std::unique_lock<std::mutex> m(mutex);
 	while(!rerunParent){
 		cond.wait(m);
@@ -72,19 +72,19 @@ int Process::waitForChildProcessBegin(){
 	}
 	return 0;
 }
-int Process::waitForChildProcessEnd(){
+int Process::waitForProcessEnd(){
 	std::unique_lock<std::mutex> m(mutex);
 	while(!rerunParent || !endChild){
 		cond.wait(m);
 	}
 	return childReturnState;
 }
-void Process::terminateChildProcess(){
+void Process::terminateProcess(){
 	std::unique_lock<std::mutex> m(mutex);
 	if(childPid > 0){
 		kill(childPid, SIGTERM);
 	}else{
-		//Child process is not running
+		//Process is not running
 	}
 }
 void Process::writeIn(int fd){
