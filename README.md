@@ -49,11 +49,11 @@ class Process
 		
 		SafeOutputStream& getStdIn() - return stream for writing to std in
 		
-		int waitForChildProcessBegin(std::string &errorMessage) - block thread until command is executed or if error
+		int waitForProcessBegin(std::string &errorMessage) - block thread until command is executed or if error
 			- return 0 if ok, else 1
-		int waitForChildProcessEnd() - block thread until command is not ended or if error
+		int waitForProcessEnd() - block thread until command is not ended or if error
 			- return child return value, or -1 if error
-		void terminateChild() - send sigterm to child process
+		void terminateProcess() - send sigterm to child process
 
 Install
 =======
